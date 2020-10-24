@@ -17,6 +17,7 @@ One other problem that can resolve a graph-based memory is the storage limit. Th
 - Keep sequences of actions and observations as a multi-directed graph
 - Perform fast approximate nearest-neighbors search to find relevant memories
 - Implement a natural memory decay
+- (TODO) Random sampling of sequences
 - (TODO) Planning algorithm
 
 ## 3. How it works
