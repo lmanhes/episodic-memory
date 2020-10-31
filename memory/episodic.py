@@ -8,18 +8,18 @@ from .tree import TreeMemory
 
 class EpisodicMemory(object):
 
-    def __init__(self, base_path, max_size=1e5, index_percentage_threshold=0.05, vector_dim=3,
+    def __init__(self, base_path, max_size=1e5, index_sim_threshold=0.05, vector_dim=3,
                  stability_start=100):
         """
         :param base_path: location of the episodic memory
         :param max_size: max number of different states in the memory
-        :param index_percentage_threshold: similarity percentage threshold for 1-nn
+        :param index_sim_threshold: similarity threshold for 1-nn
         :param vector_dim: size of state vector
         :param stability_start: starting stability parameter for the tree memory
         """
         self.episodic_memory_path = os.path.join(base_path, 'episodic_memory')
         self.max_size = int(max_size)
-        self.index_percentage_threshold = index_percentage_threshold
+        self.index_sim_threshold = index_sim_threshold
         self.vector_dim = vector_dim
         self.stability_start = stability_start
 
@@ -27,7 +27,7 @@ class EpisodicMemory(object):
 
         self.index_memory_path = os.path.join(base_path, 'index_memory')
         self.index_memory = IndexMemory(path=self.index_memory_path,
-                                        percentage_threshold=index_percentage_threshold,
+                                        sim_threshold=index_sim_threshold,
                                         dim=vector_dim,
                                         space='l2')
 
@@ -36,8 +36,13 @@ class EpisodicMemory(object):
 
         self.forgeted = 0
 
-    def __len__(self):
+    @property
+    def n_states(self):
         return len(self.id_bank)
+
+    @property
+    def n_transitions(self):
+        return len(self.tree_memory)
 
     def get_states_attributes(self, ids_list=None):
         """
@@ -91,7 +96,6 @@ class EpisodicMemory(object):
         :param state: state at t (1D numpy vector)
         :return:
         """
-
         if len(self.id_bank) == 0:
             state_m1_id = self._assign_id()
             self.index_memory.update(state_m1, state_m1_id)
@@ -128,7 +132,7 @@ class EpisodicMemory(object):
 
     def save(self):
         episodic_params = {'max_size': self.max_size,
-                           'index_percentage_threshold': self.index_percentage_threshold,
+                           'index_sim_threshold': self.index_sim_threshold,
                            'vector_dim': self.vector_dim,
                            'stability_start': self.stability_start}
         pickle.dump(episodic_params, open(f'{self.episodic_memory_path}.params', "wb"))

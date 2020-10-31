@@ -1,5 +1,6 @@
 import networkx as nx
 import pickle
+import random
 import math
 
 
@@ -21,6 +22,28 @@ class TreeMemory(object):
         self.max_size = max_size
         self.stability_start = stability_start
         self.graph = None
+
+    def __len__(self):
+        return self.graph.number_of_edges()
+
+    def sample_trajectories(self, n=None, horizon=6):
+        trajectories = []
+        n_rand_nodes = min(50, len(self.graph))
+
+        # TODO : add p based on importance of nodes (Q value)
+        rand_source_nodes = random.sample(list(self.graph.nodes), n_rand_nodes)
+        rand_target_nodes = random.sample(list(self.graph.nodes), n_rand_nodes)
+        for node_source in rand_source_nodes:
+            for node_target in rand_target_nodes:
+                trajectories.extend(nx.all_simple_edge_paths(self.graph,
+                                                             node_source,
+                                                             node_target,
+                                                             cutoff=horizon))
+
+        if trajectories and n:
+            n = min(len(trajectories), n)
+            return random.sample(trajectories, n)
+        return trajectories
 
     def _compute_centrality(self):
         centrality = nx.degree_centrality(self.graph)
