@@ -1,0 +1,2 @@
+hnswlib==0.4.0
+networkx==2.5
