@@ -1,7 +1,7 @@
 import pickle
 import numpy as np
 
-from .utils import create_index, load_index, update_index, save_index, find_optimal_threshold
+from .utils import create_index, load_index, update_index, save_index
 
 
 class IndexMemory(object):
@@ -14,7 +14,7 @@ class IndexMemory(object):
                  space='l2',
                  dim=None,
                  size=None,
-                 percentage_threshold=0.05,
+                 sim_threshold=20,
                  **kwargs):
         """
 
@@ -29,24 +29,25 @@ class IndexMemory(object):
         self.dim = dim
         self.size = size
 
-        self.percentage_threshold = percentage_threshold
-        self.sim_threshold = None
+        self.sim_threshold = sim_threshold
 
         self.index = None
 
     def __len__(self):
         return self.size
 
+    @property
+    def labels(self):
+        return self.index.get_ids_list()
+
     def init(self, vectors, labels):
+        self.labels_bank = labels
+
         self.index = create_index(vectors=vectors,
                                   labels=labels,
                                   space=self.space)
         self.dim = vectors.shape[-1]
         self.size = vectors.shape[0]
-
-        self.sim_threshold = find_optimal_threshold(dim=self.dim,
-                                                    perturbation=self.percentage_threshold,
-                                                    metric=self.space)
 
     def update(self, vectors, labels):
         """
@@ -68,6 +69,11 @@ class IndexMemory(object):
                          vectors=vectors,
                          labels=labels)
             self.size += vectors.shape[0]
+
+    def get(self, labels):
+        if isinstance(labels, int):
+            labels = [labels]
+        return self.index.get_items(labels)
 
     def forget(self, labels):
         """
@@ -121,7 +127,6 @@ class IndexMemory(object):
         memory_params = {'dim': self.dim,
                          'space': self.space,
                          'sim_threshold': self.sim_threshold,
-                         'percentage_threshold': self.percentage_threshold,
                          'size': self.size}
         pickle.dump(memory_params, open(f'{self.path}.params', "wb" ))
         save_index(index=self.index,
