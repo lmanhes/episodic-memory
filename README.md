@@ -13,14 +13,48 @@ One other problem that can resolve a graph-based memory is the storage limit. Th
 
 ## 2. Features
 
-- Store high-dimensional vectors
-- Keep sequences of actions and observations as a multi-directed graph
-- Perform fast approximate nearest-neighbors search to find relevant memories
-- Implement a natural memory decay
-- (TODO) Random sampling of sequences
-- (TODO) Planning algorithm
+- [X] Store high-dimensional vectors
+- [X] Keep sequences of actions and observations as a multi-directed graph
+- [X] Perform fast approximate nearest-neighbors search to find relevant memories
+- [X] Implement a natural memory decay
+- [X] Random sampling of sequences
+- [ ] Planning algorithm
 
 ## 3. How it works
 
 ## 4. How to use
 
+```shell script
+pip install -r requirements.txt
+```
+
+```python
+import numpy as np
+import random
+
+from memory import EpisodicMemory
+
+max_size = 10000
+sim_threshold = 31
+vector_dim = 200
+stability_start = 1000
+
+memory = EpisodicMemory(base_path='model_files',
+                        max_size=max_size,
+                        index_sim_threshold=sim_threshold,
+                        vector_dim=vector_dim,
+                        stability_start=stability_start)
+
+# simulate some actions / perceptions
+state_m1 = np.random.random((200,))
+action_m1 = random.choice(["up", "down", "left", "right"])
+for it in range(30):
+    state = np.random.random((200,))
+    memory.update(state_m1, action_m1, state)
+    state_m1 = state
+    action_m1 = random.choice(["up", "down", "left", "right"])
+    print(f"states : {memory.n_states}\ttransitions : {memory.n_transitions}\tforgeted states : {memory.forgeted}")
+
+# sample some trajectories
+trajectories = memory.tree_memory.sample_trajectories(n=15, horizon=6)
+```
