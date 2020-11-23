@@ -25,6 +25,7 @@ One other problem that can resolve a graph-based memory is the storage limit. Th
 ## 4. How to use
 
 ```shell script
+# Install requirements
 pip install -r requirements.txt
 ```
 
@@ -38,6 +39,7 @@ max_size = 10000
 sim_threshold = 31
 vector_dim = 200
 stability_start = 1000
+actions = ["up", "down", "left", "right"]
 
 memory = EpisodicMemory(base_path='model_files',
                         max_size=max_size,
@@ -46,13 +48,13 @@ memory = EpisodicMemory(base_path='model_files',
                         stability_start=stability_start)
 
 # simulate some actions / perceptions
-state_m1 = np.random.random((200,))
-action_m1 = random.choice(["up", "down", "left", "right"])
+state_m1 = np.random.random((vector_dim,))
+action_m1 = random.choice(actions)
 for it in range(30):
-    state = np.random.random((200,))
+    state = np.random.random((vector_dim,))
     memory.update(state_m1, action_m1, state)
     state_m1 = state
-    action_m1 = random.choice(["up", "down", "left", "right"])
+    action_m1 = random.choice(actions)
     print(f"states : {memory.n_states}\ttransitions : {memory.n_transitions}\tforgeted states : {memory.forgeted}")
 
 # sample some trajectories
