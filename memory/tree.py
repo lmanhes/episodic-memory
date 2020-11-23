@@ -35,10 +35,13 @@ class TreeMemory(object):
         rand_target_nodes = random.sample(list(self.graph.nodes), n_rand_nodes)
         for node_source in rand_source_nodes:
             for node_target in rand_target_nodes:
-                trajectories.extend(nx.all_simple_edge_paths(self.graph,
-                                                             node_source,
-                                                             node_target,
-                                                             cutoff=horizon))
+                trajs = nx.all_simple_edge_paths(self.graph,
+                                                 node_source,
+                                                 node_target,
+                                                 cutoff=horizon)
+                for t in trajs:
+                    if len(t) == horizon:
+                        trajectories.append(t)
 
         if trajectories and n:
             n = min(len(trajectories), n)
