@@ -22,6 +22,22 @@ One other problem that can resolve a graph-based memory is the storage limit. Th
 
 ## 3. How it works
 
+The episodic memory is based on two sub-memories:
+
+    a) An index memory
+    
+    This is an index of (high-dimensional) memory states that can retrieve top-k neighbors really fast. 
+    This is useful:
+        - if we want to know if we already experienced a particular state
+        - if we want to retrieve the most similar states compared to the current one (external or imagined)
+        
+        
+    b) A graph memory
+    
+    This is a multi-directed graph that stores sequences of (action, state). 
+    It uses a 'natural decay' to forget least useful memories and so free some space
+    
+
 ## 4. How to use
 
 ```shell script
